@@ -1,0 +1,26 @@
+{
+  "listeners": [
+    {
+      "address": "127.0.0.1",
+      "port": 18081,
+      "https": false
+    }
+  ],
+  "app": {
+    "number_of_threads": 1,
+    "enable_session": false,
+    "document_root": "./public",
+    "upload_path": "uploads",
+    "file_types": [],
+    "log": {
+      "log_path": "",
+      "logfile_base_name": "",
+      "log_size_limit": 100000000,
+      "log_level": "INFO"
+    }
+  },
+  "custom_config": {
+    "service_name": "cpp-ai-copilot",
+    "version": "0.2.0"
+  }
+}

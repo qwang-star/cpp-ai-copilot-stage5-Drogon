@@ -1,0 +1,17 @@
+﻿build/
+build*/
+build-*/
+*.exe
+*.obj
+*.o
+*.a
+*.dll
+*.lib
+*.pdb
+
+third_party/downloads/
+third_party/drogon-src/
+third_party/trantor-tmp/
+
+.vscode/
+.idea/
