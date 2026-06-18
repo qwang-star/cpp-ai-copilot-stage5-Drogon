@@ -15,3 +15,6 @@ third_party/trantor-tmp/
 
 .vscode/
 .idea/
+
+tmp_test_app.env
+*.env

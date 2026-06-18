@@ -4,7 +4,7 @@
 
 **Goal:** Add a Drogon-based product server with unified JSON responses, health checking, error handling, request logging, configuration, and tests while preserving the existing teaching server.
 
-**Architecture:** Drogon v1.9.13 is vendored as a pinned Git submodule checkout under `third_party/drogon` and built by the existing top-level CMake project. Framework-independent error metadata and response builders live under `copilot::product`; a Drogon `HttpSimpleController` owns `/health`, while the product entry point owns framework-wide 404, 405, exception, configuration, and access-log behavior.
+**Architecture:** Drogon v1.9.13 is vendored under `third_party/drogon-src/drogon-1.9.13` with Trantor under its `trantor` directory, and is built by the existing top-level CMake project when `COPILOT_BUILD_DROGON=ON`. Framework-independent error metadata and response body builders live under `copilot::product`; Drogon response adaptation lives in `src/product/drogon_response.hpp`; a Drogon `HttpSimpleController` owns `/health`, while the product entry point owns framework-wide 404, 405, exception, configuration, and access-log behavior.
 
 **Tech Stack:** C++20, CMake 3.20+, Ninja, Drogon v1.9.13, JsonCpp through Drogon, MSYS2 UCRT64 GCC
 
@@ -14,7 +14,7 @@
 
 | Path | Responsibility |
 |---|---|
-| `third_party/drogon/` | Pinned Drogon v1.9.13 source and its Trantor submodule |
+| `third_party/drogon-src/drogon-1.9.13/` | Pinned Drogon v1.9.13 source and its Trantor dependency |
 | `include/copilot/product/error_code.hpp` | Stable project error codes, messages, and HTTP mappings |
 | `include/copilot/product/api_response.hpp` | Unified JSON and Drogon response declarations |
 | `src/product/error_code.cpp` | Error metadata implementation |
@@ -28,6 +28,16 @@
 | `Makefile` | Existing teaching workflow plus CMake product convenience commands |
 | `README.md` | Build and run instructions for both server variants |
 | `03_从教学HTTP服务器升级成熟Web框架过程记录.md` | Dependency versions, commands, results, and beginner-oriented explanation |
+
+## Actual Execution Status
+
+This plan has been implemented in the repository with these deliberate adjustments:
+
+- Drogon is present as an extracted v1.9.13 source tree at `third_party/drogon-src/drogon-1.9.13`, not as a Git checkout at `third_party/drogon`.
+- The product-independent response helpers return JSON strings so `test_api_response` can build without Drogon; Drogon-specific response construction is isolated in `src/product/drogon_response.hpp`.
+- The teaching executable remains named `cpp-ai-copilot`; CMake also provides a `cpp-ai-copilot-legacy` custom target that depends on it.
+- Product CMake builds use `build-drogon` and `-DCOPILOT_BUILD_DROGON=ON`.
+- `README.md` and `Makefile` now document and expose the product build/test/run workflow.
 
 ### Task 1: Acquire and Pin Drogon v1.9.13
 
@@ -1071,8 +1081,8 @@ Append to the process record:
 ## Drogon 产品骨架实际落地记录
 
 - Drogon 版本：v1.9.13
-- Drogon commit：使用 `git -C third_party/drogon rev-parse HEAD` 的实际输出
-- Trantor commit：使用 `git -C third_party/drogon submodule status` 的实际输出
+- Drogon commit：记录 `git -C third_party/drogon rev-parse HEAD` 的命令结果
+- Trantor commit：记录 `git -C third_party/drogon submodule status` 的命令结果
 - CMake：4.2.3
 - Ninja：1.13.2
 - 构建方式：顶层 CMake `add_subdirectory(third_party/drogon)`
@@ -1104,7 +1114,7 @@ Insert the two command outputs directly instead of retaining the explanatory phr
 Run:
 
 ```powershell
-Select-String -Path README.md,'..\..\03_实现路线\01第一周c++Web框架\03_从教学HTTP服务器升级成熟Web框架过程记录.md' -Pattern 'TBD|TODO|实际输出|待补充' -Encoding UTF8
+Select-String -Path README.md,'..\..\03_实现路线\01第一周c++Web框架\03_从教学HTTP服务器升级成熟Web框架过程记录.md' -Pattern '<placeholder-patterns>' -Encoding UTF8
 ```
 
 Expected: no matches.

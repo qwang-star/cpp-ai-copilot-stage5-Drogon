@@ -76,17 +76,21 @@ cpp-ai-copilot/
   tests/
     test_api_response.cpp
   third_party/
-    drogon/
+    drogon-src/
+      drogon-1.9.13/
 ```
 
 现有 `src/main.cpp` 和 `src/simple_server.cpp` 暂不移动，避免目录调整与框架接入同时发生。构建目标使用明确名称区分：
 
 ```text
+cpp-ai-copilot
 cpp-ai-copilot-legacy
 cpp-ai-copilot-product
 test_core
 test_api_response
 ```
+
+`cpp-ai-copilot-legacy` 是 CMake 便捷目标，依赖现有教学版可执行程序 `cpp-ai-copilot`。
 
 ### 4.1 产品入口
 
@@ -101,7 +105,7 @@ test_api_response
 
 ### 4.2 统一响应
 
-成功响应采用以下结构：
+成功响应采用以下结构。核心响应构造函数生成 JSON 字符串，Drogon 相关的 `HttpResponse` 构造集中在 `src/product/drogon_response.hpp`，这样产品响应规则可以脱离 Web 框架做单元测试。
 
 ```json
 {
@@ -203,7 +207,7 @@ HTTP 状态码
 
 ## 6. 构建策略
 
-CMake 是产品版的主构建系统。Drogon 放入 `third_party/drogon`，由顶层 `CMakeLists.txt` 通过 `add_subdirectory` 接入。
+CMake 是产品版的主构建系统。Drogon 放入 `third_party/drogon-src/drogon-1.9.13`，由顶层 `CMakeLists.txt` 在 `COPILOT_BUILD_DROGON=ON` 时通过 `add_subdirectory` 接入。
 
 Makefile 暂时保留，继续服务于现有教学版的快速编译和测试。产品版验证稳定后，再决定是否让 Makefile 只作为 CMake 命令的便捷包装。
 

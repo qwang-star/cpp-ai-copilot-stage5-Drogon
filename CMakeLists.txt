@@ -15,6 +15,11 @@ if(COPILOT_BUILD_DROGON)
     set(BUILD_BROTLI OFF CACHE BOOL "" FORCE)
     set(BUILD_YAML_CONFIG OFF CACHE BOOL "" FORCE)
     set(USE_SUBMODULE ON CACHE BOOL "" FORCE)
+    if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        # MSYS2 UCRT64 links std::atomic<int64_t> without libatomic. Pre-set this
+        # to avoid Trantor's try_compile rerun leaving locked temp files on Windows.
+        set(ATOMIC_WITHOUT_LINKING TRUE CACHE INTERNAL "" FORCE)
+    endif()
 
     add_subdirectory(third_party/drogon-src/drogon-1.9.13)
 endif()
@@ -38,6 +43,8 @@ add_executable(cpp-ai-copilot
 )
 
 target_link_libraries(cpp-ai-copilot PRIVATE copilot_core)
+
+add_custom_target(cpp-ai-copilot-legacy DEPENDS cpp-ai-copilot)
 
 if(WIN32)
     target_link_libraries(cpp-ai-copilot PRIVATE ws2_32)

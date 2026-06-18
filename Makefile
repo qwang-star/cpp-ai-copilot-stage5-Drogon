@@ -1,6 +1,9 @@
 CXX ?= g++
 CXXFLAGS ?= -std=c++20 -Wall -Wextra -pedantic -O2 -finput-charset=UTF-8 -fexec-charset=UTF-8
+CMAKE ?= cmake
+CTEST ?= ctest
 INCLUDES := -Iinclude -Ithird_party
+PRODUCT_BUILD_DIR := build-drogon
 
 SRC := src/api_response.cpp src/application.cpp src/chat_service.cpp src/config.cpp src/error_code.cpp src/http.cpp src/router.cpp src/logger.cpp
 SERVER_SRC := src/main.cpp src/simple_server.cpp $(SRC)
@@ -15,7 +18,7 @@ else
   EXE :=
 endif
 
-.PHONY: all test product-api-test run clean
+.PHONY: all test product-api-test run clean product-configure product-build product-test product-run
 
 all: build/cpp-ai-copilot$(EXE)
 
@@ -36,6 +39,19 @@ test: build/test_core$(EXE)
 
 product-api-test: build/test_api_response$(EXE)
 	./build/test_api_response$(EXE)
+
+product-configure:
+	$(CMAKE) -S . -B $(PRODUCT_BUILD_DIR) -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCOPILOT_BUILD_DROGON=ON
+
+product-build: product-configure
+	$(CMAKE) --build $(PRODUCT_BUILD_DIR) --target cpp-ai-copilot-product
+
+product-test: product-configure
+	$(CMAKE) --build $(PRODUCT_BUILD_DIR) --target cpp-ai-copilot-product test_core test_api_response
+	$(CTEST) --test-dir $(PRODUCT_BUILD_DIR) --output-on-failure
+
+product-run: product-build
+	./$(PRODUCT_BUILD_DIR)/cpp-ai-copilot-product$(EXE) config/product.json
 
 run: build/cpp-ai-copilot$(EXE)
 	./build/cpp-ai-copilot$(EXE) config/app.env
